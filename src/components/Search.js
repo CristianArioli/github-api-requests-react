@@ -1,30 +1,37 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
+import axios from 'axios';
 
 import {
   Form, Button, FormGroup, FieldsForm, FormTitle,
 } from './styles';
+import Repos from './Repos';
 
-function Search({ searchfn, error }) {
-  const [gitUser, setgitUser] = useState({ user: '' });
+function Search() {
+  const [searchInput, setSearchInput] = useState({ user: '' });
+  const [repos, setRepos] = useState([]);
 
-  const submitHandler = (e) => {
+  const submitSearch = async (e) => {
     e.preventDefault();
 
-    searchfn(gitUser);
+    try {
+      const result = await axios(`https://api.github.com/users/${searchInput.user}/repos`);
+      setRepos(result);
+    } catch (error) {
+      console.log(error);
+    }
   };
-
   return (
     <div>
       <FormTitle>
         <h2>Search for a Git Hub Account</h2>
       </FormTitle>
-      <Form onSubmit={submitHandler}>
+      <Form onSubmit={submitSearch}>
         <div className="form-inner">
-          {(error !== '') ? <div className="error">{error}</div> : ''}
+          {/* {(error !== '') ? <div className="error">{error}</div> : ''} */}
           <FormGroup>
             <FieldsForm>
-              <input type="text" name="name" id="name" onChange={(e) => setgitUser({ ...gitUser, user: e.target.value })} value={gitUser.user} />
+              <input type="text" name="gitUser" id="gitUser" onChange={(e) => setSearchInput({ ...searchInput, user: e.target.value })} value={searchInput.user} />
             </FieldsForm>
           </FormGroup>
           <FormGroup>
@@ -32,13 +39,12 @@ function Search({ searchfn, error }) {
           </FormGroup>
         </div>
       </Form>
+      {repos.length !== 0 ? (<Repos repos={repos} />) : ('')}
     </div>
   );
 }
 
 Search.propTypes = {
-  searchfn: PropTypes.func.isRequired,
-  error: PropTypes.string.isRequired,
 };
 
 export default Search;
