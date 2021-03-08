@@ -29,8 +29,6 @@ const Repos = (props) => {
     }
   }, []);
 
-  console.log(repos);
-
   return (
     <div>
       <Header logout={logout} />
